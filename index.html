@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; script-src 'self'">
+<meta name="description" content="Chalkroom: a team of specialist AI assistants, one for every school subject.">
+<title>Chalkroom | A different AI assistant for every subject</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <a class="logo" href="#home">Chalkroom</a>
+  <nav aria-label="Main"><a href="#home">Home</a><a href="#idea">The idea</a><a href="#team">The team</a></nav>
+</header>
+
+<main id="main">
+<section class="view" id="home">
+  <h1>Every subject gets its own teacher.</h1>
+  <p class="lede">Chalkroom is school help built as a team of AI assistants. Each one knows one subject well, and a router sends your question to the right one.</p>
+  <form id="router" class="board-box">
+    <label for="rq">Ask anything from class</label>
+    <div class="line"><input id="rq" maxlength="200" placeholder="Try: how do I find the slope of a line?" autocomplete="off"><button class="btn">Find my assistant</button></div>
+    <ul id="roster" aria-label="The assistants"></ul>
+    <p id="route-msg" class="hint" role="status">Your question goes to whichever assistant fits it best.</p>
+  </form>
+</section>
+
+<section class="view" id="idea">
+  <h2>The idea</h2>
+  <div class="cols">
+    <article><h3>Objectives</h3><ul>
+      <li>Give every school subject an assistant built for that subject.</li>
+      <li>Help students learn the method, not just get the answer.</li>
+      <li>Keep each assistant focused so answers stay on topic and at the right level.</li>
+    </ul></article>
+    <article><h3>Key features</h3><ul>
+      <li>A router that picks the right assistant for each question.</li>
+      <li>Seven specialists, each with its own teaching style.</li>
+      <li>Hand-offs when a question belongs to a different subject.</li>
+      <li>A study coach that helps plan the work.</li>
+    </ul></article>
+    <article><h3>Potential impact</h3><ul>
+      <li>Students get quick, focused help at any hour.</li>
+      <li>Learners without a tutor get something close to one.</li>
+      <li>Teachers get students who arrive with better questions.</li>
+    </ul></article>
+  </div>
+
+  <h3 class="qa">What is your new idea?</h3>
+  <p>One website with a team of AI assistants for school, each dedicated to a single subject: math, science, writing, history, technology, languages, and study skills. Instead of asking one chatbot to handle everything, you ask a team. A router reads your question and hands it to the specialist who should answer it.</p>
+  <h3 class="qa">What problem does it solve?</h3>
+  <p>A single general chatbot has to cover every subject, every grade level, and every teaching style at once. That tends to produce answers that are generic or pitched at the wrong level. Many AI tools also hand over finished answers, which makes it easy to skip the learning. Chalkroom gives each subject a focused assistant that explains the steps and guides the student.</p>
+  <h3 class="qa">Who will benefit from it?</h3>
+  <p>Middle school, high school, and college students who need help outside class hours. Students who can't afford a tutor. Teachers and tutors, who can point students to a tool that coaches instead of copying answers.</p>
+  <h3 class="qa">How will AI agents solve the problem?</h3>
+  <p>Each assistant is an agent with a narrow job: its own knowledge, its own rules, and its own way of teaching. The router agent decides who answers. If a question crosses subjects, the assistant that receives it says so and offers a hand-off. The coach agent keeps track of the plan: what to study, in what order, and when to take a break.</p>
+  <h3 class="qa">What makes your idea different from existing solutions?</h3>
+  <p>Most AI help is one general assistant. Chalkroom is a team with a visible structure: you can see who is answering and why. Each assistant follows subject-specific rules, such as the writing assistant helping you improve an essay rather than writing it for you. The result is closer to a school's hallway of teachers than a single search box.</p>
+  <h3 class="qa">What additional features would you like to develop in the future?</h3>
+  <ul>
+    <li>Connect each assistant to a full language model, with subject-specific instructions and sources.</li>
+    <li>Upload class notes and assignments so assistants can use your own material.</li>
+    <li>Quizzes and flashcards built from each conversation.</li>
+    <li>Progress tracking, so the coach can spot weak topics.</li>
+    <li>Voice input, multiple languages, and strong accessibility support.</li>
+    <li>A teacher dashboard to set rules for how much help each assistant gives.</li>
+  </ul>
+  <p class="hint">Prototype note: the assistants on this site use built-in subject knowledge to show how the team works. They are not connected to a language model yet.</p>
+</section>
+
+<section class="view" id="team">
+  <h2>The team</h2>
+  <div class="team">
+    <div id="picker" role="tablist" aria-label="Choose an assistant"></div>
+    <div id="room" class="board-box"></div>
+  </div>
+</section>
+</main>
+
+<footer>Chalkroom · A project by Mekhi Childs, Caldwell University</footer>
+<script src="app.js"></script>
+</body>
+</html>
