@@ -1,4 +1,4 @@
-:root{--board:#101010;--panel:#181818;--chalk:#f4f3ee;--dim:#b9b8b0;--rule:#4a4a46;--hand:"Patrick Hand","Segoe Print","Comic Sans MS",cursive;--body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif}
+:root{--board:#101010;--chalk:#f4f3ee;--dim:#b9b8b0;--rule:#4a4a46;--hand:"Patrick Hand","Segoe Print","Comic Sans MS",cursive;--body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif}
 *{box-sizing:border-box}
 html{scroll-padding-top:80px}
 body{margin:0;background:var(--board);color:var(--chalk);font:1.05rem/1.7 var(--body);background-image:radial-gradient(ellipse at 20% 0,#1c1c1b,transparent 60%)}
@@ -48,3 +48,17 @@ input{flex:1;min-width:200px;background:var(--board);color:var(--chalk);border:2
 footer{max-width:1040px;margin:2rem auto 3rem;padding:1rem clamp(1rem,4vw,2rem);border-top:2px dashed var(--rule);color:var(--dim)}
 @media (max-width:760px){.team{grid-template-columns:1fr}#picker{flex-direction:row;overflow-x:auto}#picker button{white-space:nowrap}#picker button small{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+:root{--panel:color-mix(in srgb,var(--board) 90%,var(--chalk))}
+.stack{display:flex;flex-direction:column;gap:.8rem}
+.card{background:var(--panel);border:2px solid var(--rule);border-radius:10px;padding:.8rem 1.1rem}
+.card h3{margin:0}.card summary{font:1.4rem var(--hand);cursor:pointer}
+.card.pick{border-color:var(--chalk)}
+.shop{display:grid;grid-template-columns:1fr 280px;gap:1.2rem;align-items:start;margin-top:1.2rem}
+#cart-list{padding-left:1.1rem}
+.scene .view{background:rgba(10,10,10,.74);color:#f4f3ee;border-radius:14px;padding:clamp(1.2rem,4vw,2.5rem);margin:1.5rem 0}
+.scene .view a,.scene .view .hint,.scene .view .lede{color:#e9e8e0}
+#ctl-fab{position:fixed;right:16px;bottom:16px;z-index:8;box-shadow:0 4px 18px #0008}
+#ctl{position:fixed;right:16px;bottom:72px;z-index:8;width:min(400px,calc(100vw - 32px));background:var(--board);color:var(--chalk);border:2px solid var(--chalk);border-radius:8px 16px 10px 14px;padding:.9rem}
+#ctl h3{margin:0 0 .4rem}#ctl .log{height:280px}#ctl form{display:flex;gap:.4rem;margin-top:.6rem;flex-wrap:wrap}#ctl input{min-width:120px}
+.btn.live{background:var(--chalk);color:var(--board)}
+@media (max-width:760px){.shop{grid-template-columns:1fr}}

@@ -97,7 +97,7 @@
     i.maxLength = 200; i.setAttribute('aria-label', `Ask ${a.name}`); i.placeholder = `Ask ${a.name} about ${a.subject.toLowerCase()}`; f.append(i, s);
     const add = (t, me) => { const m = el('div', 'm' + (me ? ' me' : ''), t); log.append(m); log.scrollTop = log.scrollHeight; return m; };
     const ask = q => {
-      q = clean(q); if (!q) return; add(q, true); const r = reply(a, q), m = add(r.text);
+      q = clean(q); if (!q) return; add(q, true); const cmd = window.Control && Control.run(q); if (cmd) { add(cmd); return; } const r = reply(a, q), m = add(r.text);
       if (r.handoff) { const b = el('button', 'btn alt', `Ask ${r.handoff.name}`); b.type = 'button'; b.addEventListener('click', () => { select(r.handoff.id); rooms[r.handoff.id].ask(q); }); m.append(b); }
     };
     a.tries.forEach(t => { const b = el('button', '', t); b.type = 'button'; b.addEventListener('click', () => ask(t)); tries.append(b); });
@@ -117,6 +117,7 @@
   AGENTS.forEach(a => { const li = el('li', '', `${a.name} · ${a.subject}`); roster.append(li); chips[a.id] = li; });
   $('#router').addEventListener('submit', e => {
     e.preventDefault(); const q = clean($('#rq').value); if (!q) { msg.textContent = 'Type a question first.'; return; }
+    const cmd = window.Control && Control.run(q); if (cmd) { msg.textContent = cmd; $('#rq').value = ''; return; }
     const [a] = best(q), pick = a || byId('coach');
     Object.values(chips).forEach(c => c.classList.remove('hit')); chips[pick.id].classList.add('hit');
     msg.textContent = a ? `Sending your question to ${pick.name}, our ${pick.subject.toLowerCase()} assistant.` : `No clear subject found, so ${pick.name} will help you decide where to start.`;
@@ -132,5 +133,6 @@
     if (v.id === 'team' && !current) select('calc');
     window.scrollTo(0, 0);
   }
+  window.Chalkroom = { AGENTS, best, reply, clean };
   addEventListener('hashchange', route); route();
 })();
