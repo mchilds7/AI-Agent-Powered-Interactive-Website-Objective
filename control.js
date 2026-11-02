@@ -96,7 +96,22 @@
   const players = { music: $('#m-audio'), movie: $('#m-video') };
   ['music', 'movie'].forEach(k => { if (D.media && D.media[k]) players[k].setAttribute('src', D.media[k]); });
   const loaded = k => !!players[k].getAttribute('src');
-  let lastKind = null;
+  let lastKind = null, unlocked = false;
+  const mStatus = $('#m-status'), mEnable = $('#m-enable'); let panelEnable = null, nowEl = null;
+  function setEnabled() {
+    mStatus.textContent = unlocked ? 'Media is enabled. The chatbot can play, pause, and stop.' : 'Press Enable media once so your browser lets the chatbot play sound.';
+    [mEnable, panelEnable].forEach(b => { if (b) { b.textContent = unlocked ? 'Media enabled' : 'Enable media'; b.disabled = unlocked; } });
+  }
+  async function unlockMedia() { // a silent play-and-pause during a user click, so the browser later allows the chatbot to play
+    if (unlocked) return true;
+    if (Object.values(players).some(p => !p.paused)) { unlocked = true; setEnabled(); return true; }
+    for (const k of ['music', 'movie']) {
+      const p = players[k]; if (!loaded(k)) continue; const m = p.muted; p.muted = true;
+      try { await p.play(); p.pause(); p.currentTime = 0; unlocked = true; } catch (e) {} p.muted = m;
+    }
+    setEnabled(); return unlocked;
+  }
+  mEnable.addEventListener('click', () => unlockMedia());
 
   const Tools = {
     // Theme functions
@@ -140,16 +155,32 @@
       kind = kind || lastKind; if (!kind) return { ok: false, say: 'Play the music or the movie?', check: 'needs a choice' };
       if (!loaded(kind)) return { ok: false, say: `No ${kind} file has been added yet. Add its path to data.js and I can play it.`, check: `the ${kind} player has no file` };
       if (kind === 'movie') go('media'); lastKind = kind;
-      try { await players[kind].play(); } catch (e) { return { ok: false, say: 'The browser blocked playback. Press play once on the Media page, then try again.', check: 'the browser blocked autoplay' }; }
+      try { await players[kind].play(); } catch (e) { unlocked = false; setEnabled(); return { ok: false, say: 'Your browser needs one click first. Press "Enable media" on the Media page or in this chat, then ask again.', check: 'the browser blocked autoplay until media is enabled' }; }
       return { ok: !players[kind].paused, say: `Playing the ${kind}.`, check: `the ${kind} player is running` };
     },
     pauseMedia({ kind, stop }) {
       const ks = kind ? [kind] : ['music', 'movie']; let n = 0;
       ks.forEach(k => { const p = players[k]; if (loaded(k) && !p.paused) { p.pause(); n++; } if (stop && loaded(k)) p.currentTime = 0; });
       const ok = ks.every(k => players[k].paused);
-      return { ok, say: n ? `${stop ? 'Stopped' : 'Paused'} the ${kind || 'playback'}.` : 'Nothing is playing right now.', check: ok ? 'all players are paused' : 'a player is still running' };
+      return { ok, say: n ? `${stop ? 'Stopped' : 'Paused'} the ${kind || 'playback'}.` : (kind ? `The ${kind} is not playing.` : 'Nothing is playing right now.'), check: ok ? 'all players are paused' : 'a player is still running' };
     },
-    help() { return { ok: true, say: 'I run this site through a team of agents. Try:\n• "Change the background to blue"\n• "Switch to dark mode" or "light mode"\n• "Change the background image to a beach"\n• "Show me all my assignments"\n• "Open my data analysis project"\n• "Explain Assignment 5"\n• "Find a wireless keyboard"\n• "Add the second product to my cart"\n• "Tell me about the first product" / "What is in my cart?" / "Checkout" (then "confirm order")\n• "Play the music" / "Pause the video"\n• "Return to the homepage"\nI also answer school questions, like "how do I add fractions?"', check: 'help shown' }; }
+    async enableMedia() { const ok = await unlockMedia(); return { ok, say: ok ? 'Media is enabled. I can play and pause now.' : 'Your browser did not allow it. Click the Enable media button, then try again.', check: ok ? 'the browser now allows playback' : 'the browser blocked the request' }; },
+    changeVolume({ kind, up }) {
+      const ks = kind ? [kind] : ['music', 'movie'], before = ks.map(k => players[k].volume);
+      ks.forEach(k => { players[k].volume = Math.max(0, Math.min(1, players[k].volume + (up ? 0.2 : -0.2))); });
+      const v = Math.round(players[ks[0]].volume * 100), ok = ks.some((k, i) => players[k].volume !== before[i]) || before[0] === (up ? 1 : 0);
+      return { ok, say: `Volume turned ${up ? 'up' : 'down'} to ${v}%.`, check: `the ${kind || 'players'} volume is ${v}%` };
+    },
+    muteMedia({ kind, mute }) {
+      const ks = kind ? [kind] : ['music', 'movie']; ks.forEach(k => { players[k].muted = mute; });
+      return { ok: ks.every(k => players[k].muted === mute), say: `${mute ? 'Muted' : 'Unmuted'} ${kind ? 'the ' + kind : 'both players'}.`, check: `${kind ? 'the ' + kind + ' is' : 'both players are'} ${mute ? '' : 'not '}muted` };
+    },
+    async restartMedia({ kind }) {
+      kind = kind || lastKind; if (!kind || !loaded(kind)) return { ok: false, say: 'Should I restart the music or the movie?', check: 'needs a choice' };
+      players[kind].currentTime = 0; const r = await Tools.playMedia({ kind });
+      return { ...r, say: r.ok ? `Restarted the ${kind} from the beginning.` : r.say };
+    },
+    help() { return { ok: true, say: 'I run this site through a team of agents. Try:\n• "Change the background to blue"\n• "Switch to dark mode" or "light mode"\n• "Change the background image to a beach"\n• "Show me all my assignments"\n• "Open my data analysis project"\n• "Explain Assignment 5"\n• "Find a wireless keyboard"\n• "Add the second product to my cart"\n• "Tell me about the first product" / "What is in my cart?" / "Checkout" (then "confirm order")\n• "Play the music" / "Pause the movie" / "Resume playback" / "Stop the video"\n• "Turn the volume up" / "Mute the music" / "Restart the movie" / "Enable media"\n• "Return to the homepage"\nI also answer school questions, like "how do I add fractions?"', check: 'help shown' }; }
   };
 
   /* =========================================================
@@ -179,8 +210,14 @@
     } },
     { id: 'help', name: 'Help', parse: t => /\b(help|what can you do|commands)\b/.test(t) ? P('show help', 'help', {}) : null },
     { id: 'media', name: 'Media', parse(t) {
-      const verb = t.match(/\b(play|pause|resume|stop)\b/); if (!verb) return null;
       const kind = /\b(music|song|songs|audio|track)\b/.test(t) ? 'music' : /\b(movie|video|film|echo)\b/.test(t) ? 'movie' : null;
+      if (/\b(enable|unlock|allow)\b/.test(t) && /\b(media|sound|audio|playback)\b/.test(t)) return P('enable media', 'enableMedia', {});
+      const vol = /\b(louder|quieter|volume (up|down)|turn (it |the (music|movie|video|sound|volume) )?(up|down)|raise the volume|lower the volume)\b/.exec(t);
+      if (vol) { const up = /\b(louder|up|raise)\b/.test(vol[0]); return P(`turn the volume ${up ? 'up' : 'down'}`, 'changeVolume', { kind, up }, `target = ${kind || 'both players'}`); }
+      const mu = t.match(/\b(unmute|mute)\b/);
+      if (mu && (kind || /^(un)?mute( it| everything)?$/.test(t))) return P(mu[1], 'muteMedia', { kind, mute: mu[1] === 'mute' }, `target = ${kind || 'both players'}`);
+      if (/\b(restart|replay|rewind|start over)\b/.test(t) && (kind || /^(restart|replay|rewind|start over)( it)?$/.test(t))) return P('restart playback', 'restartMedia', { kind }, `target = ${kind || 'last played'}`);
+      const verb = t.match(/\b(play|pause|resume|stop)\b/); if (!verb) return null;
       if (!kind && !/^(play|pause|stop|resume)( it| playing| playback| everything)?$/.test(t)) return null;
       if (verb[1] === 'pause' || verb[1] === 'stop') return P(`${verb[1]} playback`, 'pauseMedia', { kind, stop: verb[1] === 'stop' }, `target = ${kind || 'everything'}`);
       return P(`play ${kind || 'last played media'}`, 'playMedia', { kind }, `target = ${kind || 'last played'}`);
@@ -274,15 +311,21 @@
   [['nav', 'Navigation'], ['theme', 'Theme'], ['assign', 'Assignments'], ['shop', 'Shopping'], ['media', 'Media'], ['tutor', 'Tutors']].forEach(([id, n]) => { const li = el('li', '', n); strip.append(li); lights[id] = li; });
   const sp = el('label', 'hint'), cb = el('input'); cb.type = 'checkbox'; sp.append(cb, ' Read replies aloud');
   function speak(t) { if (!cb.checked || !window.speechSynthesis) return; speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t.replace(/[•\n]+/g, '. ')); u.lang = 'en-US'; speechSynthesis.speak(u); }
+  panelEnable = el('button', 'btn alt', 'Enable media'); panelEnable.type = 'button'; nowEl = el('span', 'hint', ' Nothing playing');
+  const mediaRow = el('div', 'row'); mediaRow.append(panelEnable, nowEl); panelEnable.addEventListener('click', () => unlockMedia());
   const log = el('div', 'log'); log.setAttribute('aria-live', 'polite');
   const form = el('form'), inp = el('input'), send = el('button', 'btn', 'Send'); inp.maxLength = 200; inp.setAttribute('aria-label', 'Type a command'); inp.placeholder = 'Type or say a command';
-  form.append(inp, send); panel.append(el('h3', '', 'Control the site'), strip, sp, log, form); body.append(fab, panel);
+  form.append(inp, send); panel.append(el('h3', '', 'Control the site'), strip, mediaRow, sp, log, form); body.append(fab, panel);
   function add(t, me, trace) {
     const m = el('div', 'm' + (me ? ' me' : ''), t);
     if (trace) { const d = el('details'), ol = el('ol'); d.append(el('summary', '', 'Agent steps')); trace.forEach(s => ol.append(el('li', '', s))); d.append(ol); m.append(d); }
     log.append(m); log.scrollTop = log.scrollHeight; if (!me) speak(t);
   }
+  function now() { const on = ['music', 'movie'].filter(k => loaded(k) && !players[k].paused); nowEl.textContent = on.length ? ' Now playing: ' + on.join(' and ') : ' Nothing playing'; }
+  ['play', 'pause', 'ended'].forEach(ev => Object.values(players).forEach(p => p.addEventListener(ev, now)));
+  setEnabled();
   async function handle(q) {
+    await unlockMedia();
     q = C.clean(q).replace(/(?:\d[ -]?){13,19}/g, '[hidden]'); if (!q) return; add(q, true);
     const r = await run(q); if (r) { add(r.text, false, r.trace); return; }
     const [a] = C.best(q);
@@ -297,7 +340,7 @@
   if (SR) {
     const mic = el('button', 'btn alt', 'Speak'); mic.type = 'button'; mic.setAttribute('aria-label', 'Speak a command'); form.append(mic);
     mic.addEventListener('click', () => {
-      cb.checked = true; const r = new SR(); r.lang = 'en-US'; r.interimResults = false; mic.classList.add('live'); mic.textContent = 'Listening';
+      cb.checked = true; unlockMedia(); const r = new SR(); r.lang = 'en-US'; r.interimResults = false; mic.classList.add('live'); mic.textContent = 'Listening';
       r.onresult = e => handle(e.results[0][0].transcript);
       r.onerror = e => add(`The microphone did not work (${e.error}). You can type instead.`);
       r.onend = () => { mic.classList.remove('live'); mic.textContent = 'Speak'; };

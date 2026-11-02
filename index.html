@@ -90,10 +90,13 @@
 
 <section class="view" id="media">
   <h2>Media</h2>
-  <p>The Control chat can play and pause these. Say "play the music" or "pause the video."</p>
-  <h3>Music</h3><audio id="m-audio" controls preload="none"></audio>
-  <h3>Movie</h3><video id="m-video" controls preload="none"></video>
-  <p class="hint">No files are loaded yet. Add file paths to <code>media</code> in data.js and these players will work.</p>
+  <p>Control these with the chat. Say "play the music," "pause the movie," "resume playback," or "stop the video."</p>
+  <div class="row"><button id="m-enable" class="btn" type="button">Enable media</button><span id="m-status" class="hint" role="status">Press Enable media once so your browser lets the chatbot play sound.</span></div>
+  <h3>Movie: Chalkroom in 32 Seconds</h3>
+  <video id="m-video" src="chalkroom-intro.mp4" poster="chalkroom-intro.jpg" controls preload="metadata" playsinline><track kind="captions" src="chalkroom-intro.vtt" srclang="en" label="English captions"></video>
+  <h3>Music: Chalk Dust Loop</h3>
+  <audio id="m-audio" src="chalkroom-theme.mp3" controls preload="none"></audio>
+  <p class="hint">Credits: both pieces are original work made for this project. The animation was drawn frame by frame in code, and the music was synthesized in code. No third-party footage, samples, or images were used.</p>
 </section>
 
 <section class="view" id="shop">
