@@ -52,7 +52,7 @@
   }
 
   // Shop and cart
-  let cart = store.get('chalk-cart', []), shown = D.products.slice();
+  let cart = store.get('chalk-cart', []), shown = D.products.slice(), pending = null, orders = store.get('chalk-orders', []);
   const grid = $('#shop-grid'), cartList = $('#cart-list'), navShop = $('#nav-shop');
   const prod = id => D.products.find(p => p.id === id);
   const STOP = new Set('a an the me my for find search show look looking need want buy get please i some any to of on in product products shop store can you could would like all add it one is are'.split(' '));
@@ -67,17 +67,29 @@
     grid.textContent = '';
     if (!shown.length) grid.append(el('p', 'hint', 'No products match. Try "keyboard", "headphones", or "backpack".'));
     shown.forEach((p, i) => {
-      const c = el('article', 'card'); c.append(el('h3', '', `${i + 1}. ${p.name}`), el('p', '', money(p.price)));
+      const c = el('article', 'card'); c.append(el('h3', '', `${i + 1}. ${p.name}`), el('p', '', money(p.price)), el('p', 'hint', p.desc || ''));
       const b = el('button', 'btn', 'Add to cart'); b.type = 'button'; b.addEventListener('click', () => { Tools.addToCart({ p }); }); c.append(b); grid.append(c);
     });
     cartList.textContent = ''; let total = 0, count = 0;
     cart.forEach((x, i) => { const p = prod(x.id); total += p.price * x.qty; count += x.qty; cartList.append(el('li', '', `${i + 1}. ${p.name} × ${x.qty} (${money(p.price * x.qty)})`)); });
     if (!cart.length) cartList.append(el('li', 'hint', 'Your cart is empty.'));
-    $('#cart-total').textContent = 'Total: ' + money(total); navShop.textContent = count ? `Shop (${count})` : 'Shop';
+    $('#cart-total').textContent = 'Total: ' + money(total); navShop.textContent = count ? `Shop (${count})` : 'Shop'; checkoutUI();
   }
-  const saveCart = () => { store.set('chalk-cart', cart); renderShop(); };
+  const saveCart = () => { pending = null; store.set('chalk-cart', cart); renderShop(); };
+  const waiting = () => { if (pending && Date.now() - pending.at > 120000) pending = null; return !!pending; }; // a confirmation request expires after 2 minutes
+  const cartLines = () => cart.map(x => `${prod(x.id).name} × ${x.qty} (${money(prod(x.id).price * x.qty)})`);
+  const cartSum = () => cart.reduce((s, x) => s + prod(x.id).price * x.qty, 0);
+  const cancelNote = w => w ? ' Your checkout was canceled because the cart changed. Say "checkout" to start again.' : '';
+  function checkoutUI() {
+    $('#checkout-box').hidden = !waiting();
+    $('#checkout-text').textContent = waiting() ? `Order summary: ${cartLines().join('; ')}. Total ${money(cartSum())}. Demo only: no payment is taken and nothing is bought. Press Confirm, or say "confirm order."` : '';
+    const o = orders[orders.length - 1]; $('#receipt').textContent = o ? `Last demo order ${o.id}: ${o.lines.join('; ')}. Total ${money(o.total)}. No payment was collected.` : '';
+  }
   $('#shop-form').addEventListener('submit', e => { e.preventDefault(); shown = findProducts(C.clean($('#shop-q').value).toLowerCase()); renderShop(); });
   $('#cart-clear').addEventListener('click', () => { cart = []; saveCart(); });
+  $('#co-start').addEventListener('click', () => Tools.startCheckout());
+  $('#co-confirm').addEventListener('click', () => Tools.placeOrder());
+  $('#co-cancel').addEventListener('click', () => Tools.cancelOrder());
   renderShop();
 
   // Media players
@@ -101,11 +113,27 @@
     explainAssignment({ a }) { const open = reveal(a); return { ok: open, say: a.explain, check: `the Assignment ${a.n} card is expanded beside the explanation` }; },
     // Shopping functions
     searchProducts({ t }) { shown = findProducts(t); go('shop'); renderShop(); return { ok: grid.children.length === shown.length || !shown.length, say: shown.length ? `Found ${shown.length} product(s):\n` + shown.map((p, i) => `${i + 1}. ${p.name} (${money(p.price)})`).join('\n') + '\nSay "add the second product to my cart" to buy one.' : 'I found nothing like that. Try "keyboard", "headphones", or "backpack".', check: `${shown.length} result(s) are shown in the store` }; },
-    addToCart({ p, note }) { const before = qty(p.id); const x = cart.find(c => c.id === p.id); if (x) x.qty++; else cart.push({ id: p.id, qty: 1 }); saveCart(); return { ok: qty(p.id) === before + 1, say: `Added ${p.name} to your cart.${note || ''}`, check: `${p.name} quantity is now ${qty(p.id)}` }; },
-    removeFromCart({ i }) { const x = cart[i - 1]; if (!x) return { ok: false, say: 'Tell me which cart item to remove, like "remove the first item from my cart".', check: 'no matching cart item' }; const p = prod(x.id); cart.splice(i - 1, 1); saveCart(); return { ok: qty(p.id) === 0, say: `Removed ${p.name} from your cart.`, check: `${p.name} is no longer in the cart` }; },
+    addToCart({ p, note }) { const w = waiting(), before = qty(p.id); const x = cart.find(c => c.id === p.id); if (x) x.qty++; else cart.push({ id: p.id, qty: 1 }); saveCart(); return { ok: qty(p.id) === before + 1, say: `Added ${p.name} to your cart.${note || ''}${cancelNote(w)}`, check: `${p.name} quantity is now ${qty(p.id)}` }; },
+    removeFromCart({ i }) { const x = cart[i - 1]; if (!x) return { ok: false, say: 'Tell me which cart item to remove, like "remove the first item from my cart".', check: 'no matching cart item' }; const w = waiting(), p = prod(x.id); cart.splice(i - 1, 1); saveCart(); return { ok: qty(p.id) === 0, say: `Removed ${p.name} from your cart.${cancelNote(w)}`, check: `${p.name} is no longer in the cart` }; },
     clearCart() { cart = []; saveCart(); return { ok: cart.length === 0, say: 'Your cart is empty.', check: 'the cart has 0 items' }; },
     showCart() { go('shop'); const n = cart.reduce((s, x) => s + x.qty, 0); return { ok: location.hash === '#shop', say: `Your cart has ${n} item(s). Opening the Shop page.`, check: 'the cart panel is visible' }; },
-    checkout() { return { ok: true, say: 'This is a demo store, so there is no real checkout. Your cart total is shown on the Shop page.', check: 'demo store, no payment taken' }; },
+    startCheckout() {
+      if (!cart.length) return { ok: false, say: 'Your cart is empty, so there is nothing to check out. Try "find a wireless keyboard."', check: 'no items to check out' };
+      pending = { at: Date.now() }; go('shop'); renderShop();
+      return { ok: waiting(), say: `Order summary:\n${cartLines().join('\n')}\nTotal: ${money(cartSum())}.\nThis is a demo store. No payment will be taken and nothing will be bought. Say "confirm order" to place the demo order, or say "cancel".`, check: 'waiting for your explicit confirmation, and no order has been placed' };
+    },
+    placeOrder() {
+      if (!waiting()) return { ok: false, say: 'There is no order waiting for confirmation. Say "checkout" first.', check: 'no pending checkout, so nothing was placed' };
+      const id = 'DEMO-' + Math.floor(1000 + Math.random() * 9000), lines = cartLines(), total = cartSum();
+      orders.push({ id, lines, total }); orders = orders.slice(-5); store.set('chalk-orders', orders);
+      cart = []; pending = null; store.set('chalk-cart', cart); renderShop();
+      return { ok: cart.length === 0 && orders[orders.length - 1].id === id, say: `Demo order ${id} placed for ${money(total)}. No payment was collected and nothing was purchased.`, check: 'the cart is empty and a demo receipt is shown' };
+    },
+    cancelOrder() { pending = null; renderShop(); return { ok: !waiting(), say: 'Checkout canceled. Your cart is unchanged.', check: 'no order was placed' }; },
+    cartTotal() { const n = cart.reduce((s, x) => s + x.qty, 0); return { ok: true, say: n ? `Your cart total is ${money(cartSum())} for ${n} item(s).` : 'Your cart is empty, so the total is $0.00.', check: `total read from ${n} cart item(s)` }; },
+    readCart() { return { ok: true, say: cart.length ? 'In your cart:\n' + cartLines().join('\n') + `\nTotal: ${money(cartSum())}.` : 'Your cart is empty.', check: `${cart.length} line(s) read aloud from the cart` }; },
+    describeProduct({ p, i }) { go('shop'); return { ok: !!p, say: p ? `Product ${i}: ${p.name}, ${money(p.price)}. ${p.desc || ''}` : `There is no product number ${i} in the current results.`, check: p ? 'product details read from the catalog' : 'no such result' }; },
+    refuse() { return { ok: true, say: 'Please do not say or type card numbers or payment details. This demo never collects them, and nothing here is a real purchase.', check: 'sensitive details were blocked and not stored' }; },
     clarify({ say }) { return { ok: false, say, check: 'more detail needed' }; },
     // Media functions
     async playMedia({ kind }) {
@@ -121,7 +149,7 @@
       const ok = ks.every(k => players[k].paused);
       return { ok, say: n ? `${stop ? 'Stopped' : 'Paused'} the ${kind || 'playback'}.` : 'Nothing is playing right now.', check: ok ? 'all players are paused' : 'a player is still running' };
     },
-    help() { return { ok: true, say: 'I run this site through a team of agents. Try:\n• "Change the background to blue"\n• "Switch to dark mode" or "light mode"\n• "Change the background image to a beach"\n• "Show me all my assignments"\n• "Open my data analysis project"\n• "Explain Assignment 5"\n• "Find a wireless keyboard"\n• "Add the second product to my cart"\n• "Play the music" / "Pause the video"\n• "Return to the homepage"\nI also answer school questions, like "how do I add fractions?"', check: 'help shown' }; }
+    help() { return { ok: true, say: 'I run this site through a team of agents. Try:\n• "Change the background to blue"\n• "Switch to dark mode" or "light mode"\n• "Change the background image to a beach"\n• "Show me all my assignments"\n• "Open my data analysis project"\n• "Explain Assignment 5"\n• "Find a wireless keyboard"\n• "Add the second product to my cart"\n• "Tell me about the first product" / "What is in my cart?" / "Checkout" (then "confirm order")\n• "Play the music" / "Pause the video"\n• "Return to the homepage"\nI also answer school questions, like "how do I add fractions?"', check: 'help shown' }; }
   };
 
   /* =========================================================
@@ -141,6 +169,14 @@
   const asgByWords = t => { let best = null, s = 0; D.assignments.forEach(a => { const c = a.kw.filter(k => t.includes(k)).length; if (c > s) { s = c; best = a; } }); return /\b(project|assignment)\b/.test(t) ? best : null; };
 
   const AGENTS = [
+    { id: 'shop', name: 'Checkout', parse(t) {
+      if (/\[hidden\]|card number|credit card|debit card|\bcvv\b|security code|billing/.test(t)) return P('block sensitive data', 'refuse', {});
+      if (/confirm (my |the )?order/.test(t) && !waiting()) return P('confirm the order', 'placeOrder', {});
+      if (!waiting()) return null;
+      if (/\b(cancel|no|never ?mind|stop|do not|don'?t|abort|wait)\b/.test(t)) return P('cancel the checkout', 'cancelOrder', {});
+      if (/\b(confirm|yes|place (?:the |my )?order|go ahead|approve)\b/.test(t) && t.split(' ').length <= 5) return P('confirm the demo order', 'placeOrder', {}, 'explicit confirmation received');
+      return null;
+    } },
     { id: 'help', name: 'Help', parse: t => /\b(help|what can you do|commands)\b/.test(t) ? P('show help', 'help', {}) : null },
     { id: 'media', name: 'Media', parse(t) {
       const verb = t.match(/\b(play|pause|resume|stop)\b/); if (!verb) return null;
@@ -150,9 +186,13 @@
       return P(`play ${kind || 'last played media'}`, 'playMedia', { kind }, `target = ${kind || 'last played'}`);
     } },
     { id: 'shop', name: 'Shopping', parse(t) {
+      if (/\b(checkout|check out|place (?:an |my |the )?order|purchase|pay for)\b/.test(t)) return P('start checkout', 'startCheckout', {});
+      const oi = ordinal(t, shown.length);
+      if (oi && /\b(product|result|item|one|option)\b/.test(t) && /\b(describe|tell me|about|details|more|how much|price|cost)\b/.test(t) && !/\b(add|put|cart|remove)\b/.test(t)) return P('describe a product', 'describeProduct', { p: shown[oi - 1], i: oi }, `result #${oi}`);
+      if (/\b(total|how much)\b/.test(t) && /\b(cart|basket|order|my total|the total)\b/.test(t)) return P('read the cart total', 'cartTotal', {});
       if (/\b(cart|basket)\b/.test(t)) {
+        if (/what'?s in|what is in|\bread\b|\blist\b/.test(t)) return P('read the cart', 'readCart', {});
         if (/\b(clear|empty)\b/.test(t)) return P('empty the cart', 'clearCart', {});
-        if (/\b(checkout|check out|pay)\b/.test(t)) return P('check out', 'checkout', {});
         if (/\b(remove|delete|take)\b/.test(t)) return P('remove a cart item', 'removeFromCart', { i: ordinal(t, cart.length) }, `cart position = ${ordinal(t, cart.length) || 'unknown'}`);
         if (/\b(add|put)\b/.test(t)) {
           const i = ordinal(t, shown.length);
@@ -232,16 +272,18 @@
   const panel = el('aside'); panel.id = 'ctl'; panel.hidden = true; panel.setAttribute('aria-label', 'Site control chat');
   const strip = el('ul', 'agents'); strip.setAttribute('aria-label', 'Agents');
   [['nav', 'Navigation'], ['theme', 'Theme'], ['assign', 'Assignments'], ['shop', 'Shopping'], ['media', 'Media'], ['tutor', 'Tutors']].forEach(([id, n]) => { const li = el('li', '', n); strip.append(li); lights[id] = li; });
+  const sp = el('label', 'hint'), cb = el('input'); cb.type = 'checkbox'; sp.append(cb, ' Read replies aloud');
+  function speak(t) { if (!cb.checked || !window.speechSynthesis) return; speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t.replace(/[•\n]+/g, '. ')); u.lang = 'en-US'; speechSynthesis.speak(u); }
   const log = el('div', 'log'); log.setAttribute('aria-live', 'polite');
   const form = el('form'), inp = el('input'), send = el('button', 'btn', 'Send'); inp.maxLength = 200; inp.setAttribute('aria-label', 'Type a command'); inp.placeholder = 'Type or say a command';
-  form.append(inp, send); panel.append(el('h3', '', 'Control the site'), strip, log, form); body.append(fab, panel);
+  form.append(inp, send); panel.append(el('h3', '', 'Control the site'), strip, sp, log, form); body.append(fab, panel);
   function add(t, me, trace) {
     const m = el('div', 'm' + (me ? ' me' : ''), t);
     if (trace) { const d = el('details'), ol = el('ol'); d.append(el('summary', '', 'Agent steps')); trace.forEach(s => ol.append(el('li', '', s))); d.append(ol); m.append(d); }
-    log.append(m); log.scrollTop = log.scrollHeight;
+    log.append(m); log.scrollTop = log.scrollHeight; if (!me) speak(t);
   }
   async function handle(q) {
-    q = C.clean(q); if (!q) return; add(q, true);
+    q = C.clean(q).replace(/(?:\d[ -]?){13,19}/g, '[hidden]'); if (!q) return; add(q, true);
     const r = await run(q); if (r) { add(r.text, false, r.trace); return; }
     const [a] = C.best(q);
     if (a) { light('tutor'); add(`${a.name} (${a.subject}): ${C.reply(a, q).text}`, false, [`Recognize: this is a school question, not a site command.`, `Identify action: answer a ${a.subject.toLowerCase()} question.`, `Select function: the ${a.name} subject assistant.`, 'Execute: looked up the answer in its subject knowledge.', 'Confirm: answer returned. Verified.']); }
@@ -255,7 +297,7 @@
   if (SR) {
     const mic = el('button', 'btn alt', 'Speak'); mic.type = 'button'; mic.setAttribute('aria-label', 'Speak a command'); form.append(mic);
     mic.addEventListener('click', () => {
-      const r = new SR(); r.lang = 'en-US'; r.interimResults = false; mic.classList.add('live'); mic.textContent = 'Listening';
+      cb.checked = true; const r = new SR(); r.lang = 'en-US'; r.interimResults = false; mic.classList.add('live'); mic.textContent = 'Listening';
       r.onresult = e => handle(e.results[0][0].transcript);
       r.onerror = e => add(`The microphone did not work (${e.error}). You can type instead.`);
       r.onend = () => { mic.classList.remove('live'); mic.textContent = 'Speak'; };

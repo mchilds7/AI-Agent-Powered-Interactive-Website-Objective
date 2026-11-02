@@ -67,3 +67,4 @@ audio,video{width:100%;max-width:720px;display:block;margin-bottom:1rem}
 .agents li{font:.95rem var(--hand);border:1px solid var(--rule);border-radius:14px;padding:0 .6rem;color:var(--dim);transition:all .3s}
 .agents li.hit{background:var(--chalk);color:var(--board);border-color:var(--chalk)}
 .m details{margin-top:.4rem;font-size:.85rem;color:var(--dim)}.m details summary{cursor:pointer}.m details ol{margin:.3rem 0 0;padding-left:1.2rem}
+input[type=checkbox]{flex:none;min-width:0;width:auto;margin-right:.4rem}#checkout-box{margin-top:1rem}

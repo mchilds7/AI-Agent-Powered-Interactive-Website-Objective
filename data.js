@@ -24,17 +24,18 @@ window.SITE_DATA = {
       summary: 'Placeholder: add your data analysis project here.',
       explain: 'Assignment 7 is a placeholder for my data analysis project. Edit data.js to add its real description.' }
   ],
+  /* The approved demo catalog. The shopping agent searches only this list. */
   products: [
-    { id: 1, name: 'Wireless Keyboard', price: 34.99, tags: 'keyboard wireless typing' },
-    { id: 2, name: 'Compact Bluetooth Keyboard', price: 29.99, tags: 'keyboard wireless bluetooth typing' },
-    { id: 3, name: 'Wireless Mouse', price: 19.99, tags: 'mouse wireless' },
-    { id: 4, name: 'Noise-Canceling Headphones', price: 59.0, tags: 'headphones audio study' },
-    { id: 5, name: 'Spiral Notebook 5-Pack', price: 12.5, tags: 'notebook paper notes' },
-    { id: 6, name: 'Scientific Calculator', price: 24.0, tags: 'calculator math' },
-    { id: 7, name: 'Laptop Backpack', price: 42.0, tags: 'backpack bag laptop' },
-    { id: 8, name: 'LED Desk Lamp', price: 21.99, tags: 'lamp light desk' },
-    { id: 9, name: 'USB-C Hub', price: 27.0, tags: 'hub usb adapter' },
-    { id: 10, name: '128GB Flash Drive', price: 14.0, tags: 'flash drive usb storage' }
+    { id: 1, name: 'Wireless Keyboard', price: 34.99, tags: 'keyboard wireless typing', desc: 'Full-size wireless keyboard with a number pad. Comfortable for long writing sessions.' },
+    { id: 2, name: 'Compact Bluetooth Keyboard', price: 29.99, tags: 'keyboard wireless bluetooth typing', desc: 'Slim Bluetooth keyboard that pairs with a laptop, tablet, or phone. Easy to carry in a backpack.' },
+    { id: 3, name: 'Wireless Mouse', price: 19.99, tags: 'mouse wireless', desc: 'Quiet-click wireless mouse with a comfortable right-hand shape.' },
+    { id: 4, name: 'Noise-Canceling Headphones', price: 59.0, tags: 'headphones audio study', desc: 'Over-ear headphones that block background noise so you can focus.' },
+    { id: 5, name: 'Spiral Notebook 5-Pack', price: 12.5, tags: 'notebook paper notes', desc: 'Five spiral notebooks for class notes.' },
+    { id: 6, name: 'Scientific Calculator', price: 24.0, tags: 'calculator math', desc: 'Scientific calculator with trig, log, and fraction functions for math and science classes.' },
+    { id: 7, name: 'Laptop Backpack', price: 42.0, tags: 'backpack bag laptop', desc: 'Padded backpack that fits a 15-inch laptop plus books.' },
+    { id: 8, name: 'LED Desk Lamp', price: 21.99, tags: 'lamp light desk', desc: 'Adjustable LED lamp with three brightness levels for late-night study.' },
+    { id: 9, name: 'USB-C Hub', price: 27.0, tags: 'hub usb adapter', desc: 'USB-C hub that adds extra ports to a laptop.' },
+    { id: 10, name: '128GB Flash Drive', price: 14.0, tags: 'flash drive usb storage', desc: '128GB flash drive for backing up papers and projects.' }
   ],
   media: { music: '', movie: '' }, /* example: movie: 'echo-movie.mp4', music: 'theme.mp3' */
   scenes: {

@@ -98,11 +98,14 @@
 
 <section class="view" id="shop">
   <h2>Shop</h2>
-  <p class="hint">A demo school store. Nothing here is a real purchase.</p>
+  <p class="hint">A demo school store. Nothing here is a real purchase, and no payment details are ever collected. Voice workflow: say "find a wireless keyboard," then "add the second product to my cart," then "checkout," then "confirm order."</p>
   <form id="shop-form" class="line"><input id="shop-q" maxlength="100" aria-label="Search products" placeholder="Search, like wireless keyboard"><button class="btn">Search</button></form>
   <div class="shop">
     <div id="shop-grid" class="stack"></div>
-    <aside class="board-box"><h3>Your cart</h3><ul id="cart-list"></ul><p id="cart-total"></p><button id="cart-clear" class="btn alt" type="button">Clear cart</button></aside>
+    <aside class="board-box"><h3>Your cart</h3><ul id="cart-list"></ul><p id="cart-total"></p>
+      <div class="row"><button id="co-start" class="btn" type="button">Checkout</button><button id="cart-clear" class="btn alt" type="button">Clear cart</button></div>
+      <div id="checkout-box" class="card" hidden><p id="checkout-text"></p><div class="row"><button id="co-confirm" class="btn" type="button">Confirm demo order</button><button id="co-cancel" class="btn alt" type="button">Cancel</button></div></div>
+      <p id="receipt" class="hint" role="status"></p></aside>
   </div>
 </section>
 </main>
