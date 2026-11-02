@@ -36,6 +36,7 @@ window.SITE_DATA = {
     { id: 9, name: 'USB-C Hub', price: 27.0, tags: 'hub usb adapter' },
     { id: 10, name: '128GB Flash Drive', price: 14.0, tags: 'flash drive usb storage' }
   ],
+  media: { music: '', movie: '' }, /* example: movie: 'echo-movie.mp4', music: 'theme.mp3' */
   scenes: {
     beach: 'radial-gradient(circle at 78% 20%,#fff6b0 0,#ffd54a 3%,transparent 8%),linear-gradient(#7fd3f7 0%,#c9edfb 38%,#1b8fc4 38%,#2fb3d9 56%,#f0d9a0 56%,#e2c183 100%)',
     sunset: 'linear-gradient(#2b1055 0%,#7a2f7a 35%,#e8546b 65%,#ffb35c 100%)',

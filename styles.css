@@ -62,3 +62,8 @@ footer{max-width:1040px;margin:2rem auto 3rem;padding:1rem clamp(1rem,4vw,2rem);
 #ctl h3{margin:0 0 .4rem}#ctl .log{height:280px}#ctl form{display:flex;gap:.4rem;margin-top:.6rem;flex-wrap:wrap}#ctl input{min-width:120px}
 .btn.live{background:var(--chalk);color:var(--board)}
 @media (max-width:760px){.shop{grid-template-columns:1fr}}
+audio,video{width:100%;max-width:720px;display:block;margin-bottom:1rem}
+.agents{list-style:none;display:flex;flex-wrap:wrap;gap:.3rem;padding:0;margin:0 0 .5rem}
+.agents li{font:.95rem var(--hand);border:1px solid var(--rule);border-radius:14px;padding:0 .6rem;color:var(--dim);transition:all .3s}
+.agents li.hit{background:var(--chalk);color:var(--board);border-color:var(--chalk)}
+.m details{margin-top:.4rem;font-size:.85rem;color:var(--dim)}.m details summary{cursor:pointer}.m details ol{margin:.3rem 0 0;padding-left:1.2rem}

@@ -14,7 +14,7 @@
 <a class="skip" href="#main">Skip to content</a>
 <header class="top">
   <a class="logo" href="#home">Chalkroom</a>
-  <nav aria-label="Main"><a href="#home">Home</a><a href="#idea">The idea</a><a href="#team">The team</a><a href="#assignments">Assignments</a><a href="#shop" id="nav-shop">Shop</a></nav>
+  <nav aria-label="Main"><a href="#home">Home</a><a href="#idea">The idea</a><a href="#team">The team</a><a href="#assignments">Assignments</a><a href="#media">Media</a><a href="#shop" id="nav-shop">Shop</a></nav>
 </header>
 
 <main id="main">
@@ -70,6 +70,8 @@
     <li>Voice input, multiple languages, and strong accessibility support.</li>
     <li>A teacher dashboard to set rules for how much help each assistant gives.</li>
   </ul>
+  <h3 class="qa">How do the agents run the website?</h3>
+  <p>The Control chat is a team of agents behind one interface. Every command goes through the same five steps: recognize what you said, identify the action, select the right website function, execute it, and confirm the result. Specialist agents handle navigation, theme changes, assignments, shopping, and media, and the subject assistants answer school questions. Open "Agent steps" under any Control reply to see the steps it took.</p>
   <p class="hint">Prototype note: the assistants on this site use built-in subject knowledge to show how the team works. They are not connected to a language model yet.</p>
 </section>
 
@@ -84,6 +86,14 @@
   <h2>Assignments</h2>
   <p>Every course project in one place. Ask the Control chat to open or explain any of them.</p>
   <div id="asg-list" class="stack"></div>
+</section>
+
+<section class="view" id="media">
+  <h2>Media</h2>
+  <p>The Control chat can play and pause these. Say "play the music" or "pause the video."</p>
+  <h3>Music</h3><audio id="m-audio" controls preload="none"></audio>
+  <h3>Movie</h3><video id="m-video" controls preload="none"></video>
+  <p class="hint">No files are loaded yet. Add file paths to <code>media</code> in data.js and these players will work.</p>
 </section>
 
 <section class="view" id="shop">
