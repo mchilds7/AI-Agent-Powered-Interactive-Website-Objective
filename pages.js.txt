@@ -1,0 +1,234 @@
+(function () {
+  'use strict';
+  const D = window.SITE_DATA, C = window.Chalkroom, clean = C.clean;
+  const $ = (s, r = document) => r.querySelector(s);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const store = {
+    get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  };
+  const money = n => '$' + n.toFixed(2);
+  const say = (node, msg, ok) => { node.textContent = msg; node.className = 'hint ' + (ok ? 'ok' : 'err'); };
+
+  /* ---------- Home: start-here tiles ---------- */
+  const TILES = [
+    ['idea', 'The idea', 'What Chalkroom is, the problem it solves, and who it helps.', 'open the idea page'],
+    ['assignments', 'Assignments', 'All seven course projects, with activities inside.', 'show me all my assignments'],
+    ['projects', 'Projects', 'Links to my two earlier websites, with a summary of each.', 'open the projects page'],
+    ['team', 'The team', 'Seven subject assistants and the router.', 'open the team'],
+    ['control', 'Control center', 'The chatbot, the AI agents, and voice.', 'open the control center'],
+    ['dashboard', 'Dashboard', 'Charts built from this site\'s own data.', 'open the dashboard'],
+    ['shop', 'Shop', 'A demo store you can run by voice.', 'find a wireless keyboard'],
+    ['media', 'Music and movie', 'An original animation and soundtrack.', 'play the movie'],
+    ['security', 'Security and privacy', 'How your data is protected, and a password lab.', 'open the security page'],
+    ['contact', 'Contact and docs', 'Reach me, and read how it all works.', 'open contact']
+  ];
+  TILES.forEach(([v, t, d, s]) => {
+    const a = el('a', 'tile'); a.href = '#' + v; a.append(el('b', '', t), el('span', '', d), el('em', '', 'Say: "' + s + '"')); $('#tiles').append(a);
+  });
+
+  /* ---------- Charts (plain SVG, themed by CSS) ---------- */
+  const NS = 'http://www.w3.org/2000/svg';
+  const S = (tag, attrs, text) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (text != null) n.textContent = text; return n; };
+  function bars(host, items, label, L = 150) {
+    host.textContent = '';
+    if (!items.length) { host.append(el('p', 'hint', 'No data yet.')); return; }
+    const W = 600, rowH = 38, H = items.length * rowH + 8, R = 150, max = Math.max(...items.map(i => i.value), 1);
+    const svg = S('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': label + '. ' + items.map(i => `${i.label}: ${i.text}`).join('; ') });
+    items.forEach((it, i) => {
+      const y = i * rowH + 4, w = it.value > 0 ? Math.max(4, (it.value / max) * (W - L - R)) : 0;
+      svg.append(S('text', { x: 0, y: y + 25, class: 'lab' }, it.label), S('rect', { x: L, y: y + 6, width: w, height: 24, rx: 4, class: 'bar' + (it.hl ? ' hl' : '') }), S('text', { x: L + w + 8, y: y + 25, class: 'val' }, it.text));
+    });
+    host.append(svg);
+  }
+  function line(host, vals, label, max) {
+    host.textContent = '';
+    if (vals.length < 2) { host.append(el('p', 'hint', vals.length ? 'One result so far. Add another to see a trend.' : 'No data yet.')); return; }
+    const W = 600, H = 210, top = Math.max(max, ...vals), x = i => 40 + i * ((W - 80) / (vals.length - 1)), y = v => H - 40 - (v / top) * (H - 80);
+    const svg = S('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': label + ': ' + vals.join(', ') });
+    svg.append(S('line', { x1: 30, y1: H - 40, x2: W - 20, y2: H - 40, class: 'axis' }), S('polyline', { points: vals.map((v, i) => `${x(i)},${y(v)}`).join(' '), class: 'ln' }));
+    vals.forEach((v, i) => svg.append(S('circle', { cx: x(i), cy: y(v), r: 5, class: 'dot' }), S('text', { x: x(i), y: y(v) - 12, 'text-anchor': 'middle', class: 'val' }, v)));
+    host.append(svg);
+  }
+  const NAMES = ['Navigation', 'Projects', 'Dashboard', 'Security', 'Theme', 'Assignments', 'Shopping', 'Media', 'Tutors'];
+  function renderDash() {
+    const st = store.get('chalk-stats', { counts: {}, log: [] }), cart = store.get('chalk-cart', []), quiz = store.get('chalk-quiz', []), pw = store.get('chalk-pw', []);
+    const byId = id => D.products.find(p => p.id === id), inCart = new Set(cart.map(x => x.id));
+    const total = cart.reduce((s, x) => s + byId(x.id).price * x.qty, 0), items = cart.reduce((s, x) => s + x.qty, 0), run = NAMES.reduce((s, n) => s + (st.counts[n] || 0), 0);
+    const box = $('#stat-tiles'); box.textContent = '';
+    [['Commands run', run], ['Items in cart', items], ['Cart total', money(total)], ['Best quiz score', quiz.length ? Math.max(...quiz) + ' / 10' : 'None yet'], ['Subject assistants', C.AGENTS.length], ['Background scenes', Object.keys(D.scenes).length]]
+      .forEach(([k, v]) => { const t = el('div', 'tile static'); t.append(el('span', '', k), el('b', '', String(v))); box.append(t); });
+    bars($('#fig-agents .chart'), NAMES.map(n => ({ label: n, value: st.counts[n] || 0, text: String(st.counts[n] || 0) })), 'Commands handled by each agent');
+    bars($('#fig-prices .chart'), D.products.map(p => ({ label: p.name, value: p.price, text: money(p.price) + (inCart.has(p.id) ? ' (in cart)' : ''), hl: inCart.has(p.id) })), 'Shop prices', 250);
+    bars($('#fig-storage .chart'), D.storage.filter(s => s.mid > 0).map(s => ({ label: s.type, value: s.mid, text: s.speed.replace(' MB/s', '') })), 'Typical storage read speed in megabytes per second', 150);
+    bars($('#fig-knowledge .chart'), C.AGENTS.map(a => ({ label: a.name + ': ' + a.subject.split(' ')[0], value: a.kb.length, text: a.kb.length + ' topics' })), 'Topics each assistant knows', 190);
+    line($('#fig-quiz .chart'), quiz, 'Quiz scores out of 10', 10);
+    line($('#fig-pw .chart'), pw, 'Password strength in bits', 80);
+  }
+  function focusChart(id) {
+    const f = $('#fig-' + id); if (!f) return false;
+    renderDash(); document.querySelectorAll('.charts figure').forEach(x => x.classList.remove('pick')); f.classList.add('pick');
+    setTimeout(() => f.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200); return true;
+  }
+
+  /* ---------- Assignments, with the activities from each project ---------- */
+  function quiz(host) {
+    const form = el('form'); form.noValidate = true;
+    D.quiz.forEach((q, i) => {
+      const fs = el('fieldset'); fs.append(el('legend', '', `${i + 1}. ${q.q}`));
+      q.o.forEach(([t, v]) => { const lab = el('label', 'opt'), r = el('input'); r.type = 'radio'; r.name = 'q' + i; r.value = v; lab.append(r, document.createTextNode(' ' + t)); fs.append(lab); });
+      form.append(fs);
+    });
+    const b = el('button', 'btn', 'See my score'), out = el('p', 'hint'); out.setAttribute('role', 'status'); form.append(b, out); host.append(form);
+    form.addEventListener('submit', e => {
+      e.preventDefault(); let sum = 0, n = 0;
+      D.quiz.forEach((q, i) => { const c = form.querySelector(`input[name="q${i}"]:checked`); if (c) { sum += +c.value; n++; } });
+      if (n < D.quiz.length) return say(out, `Please answer all ${D.quiz.length} questions.`, false);
+      const tier = sum >= 9 ? 'Exemplary digital citizen. You check sources, protect your accounts, and act ethically.' : sum >= 6 ? 'Conscientious digital citizen. Deeper fact-checking and regular privacy reviews will take you further.' : 'Developing digital awareness. Verify before sharing, never reuse passwords, and remember footprints are permanent.';
+      say(out, `Your score: ${sum} / 10. ${tier}`, true);
+      const h = store.get('chalk-quiz', []); h.push(sum); store.set('chalk-quiz', h.slice(-8));
+    });
+  }
+  function stepper(host, d) {
+    host.append(el('h4', '', d.label));
+    const row = el('div', 'steps'), panel = el('p', 'steppanel'), nav = el('div', 'row'), btns = []; let cur = 0;
+    panel.setAttribute('aria-live', 'polite');
+    const back = el('button', 'btn alt', 'Back'), next = el('button', 'btn', 'Next'); back.type = next.type = 'button';
+    function set(i) {
+      cur = i; btns.forEach((b, k) => b.setAttribute('aria-current', k === i ? 'step' : 'false'));
+      panel.textContent = ''; panel.append(el('b', '', d.items[i][0] + ': '), document.createTextNode(d.items[i][1])); back.disabled = i === 0; next.disabled = i === d.items.length - 1;
+    }
+    d.items.forEach((it, i) => { const b = el('button', '', `${i + 1}. ${it[0]}`); b.type = 'button'; b.addEventListener('click', () => set(i)); btns.push(b); row.append(b); });
+    back.addEventListener('click', () => set(cur - 1)); next.addEventListener('click', () => set(cur + 1));
+    nav.append(back, next); host.append(row, panel, nav); set(0);
+  }
+  function storageTable(host) {
+    host.append(el('h4', '', 'Storage types compared'));
+    const wrap = el('div', 'tablewrap'); wrap.tabIndex = 0; wrap.setAttribute('role', 'region'); wrap.setAttribute('aria-label', 'Storage comparison table');
+    const t = el('table'), hd = el('tr'); ['Type', 'Group', 'Capacity', 'Typical speed', 'Best for'].forEach(h => { const th = el('th', '', h); th.scope = 'col'; hd.append(th); });
+    t.append(el('thead')); t.firstChild.append(hd); const tb = el('tbody');
+    D.storage.forEach(s => { const r = el('tr'), th = el('th', '', s.type); th.scope = 'row'; r.append(th, el('td', '', s.cat), el('td', '', s.cap), el('td', '', s.speed), el('td', '', s.use)); tb.append(r); });
+    t.append(tb); wrap.append(t); host.append(wrap);
+    const a = el('a', '', 'See the speeds as a chart'); a.href = '#dashboard'; a.addEventListener('click', () => setTimeout(() => focusChart('storage'), 50)); host.append(a);
+  }
+  const asgList = $('#asg-list');
+  D.assignments.forEach(a => {
+    const d = el('details', 'card'); d.id = 'asg-' + a.n;
+    d.append(el('summary', '', `Assignment ${a.n}: ${a.title}`), el('p', 'lead', a.summary), el('p', '', a.explain), el('h4', '', 'What is inside'));
+    const ul = el('ul'); a.inside.forEach(x => ul.append(el('li', '', x))); d.append(ul);
+    const act = el('div', 'activity');
+    if (a.activity === 'quiz') { act.append(el('h4', '', 'Try it: the citizenship quiz')); quiz(act); }
+    if (a.activity === 'dns') stepper(act, D.steps.dns);
+    if (a.activity === 'echo') stepper(act, D.steps.echo);
+    if (a.activity === 'storage') storageTable(act);
+    d.append(act);
+    if (a.link) { const l = el('a', 'btn alt', a.linkText || 'Open'); l.href = a.link; d.append(l); }
+    asgList.append(d);
+  });
+  $('#asg-open').addEventListener('click', () => document.querySelectorAll('#asg-list details').forEach(d => d.open = true));
+  $('#asg-close').addEventListener('click', () => document.querySelectorAll('#asg-list details').forEach(d => d.open = false));
+
+  /* ---------- Projects: links to the two earlier websites ---------- */
+  D.projects.forEach(pr => {
+    const c = el('article', 'card proj'); c.id = 'proj-' + pr.id;
+    const open = el('a', 'btn', 'Open site'); open.href = pr.url; open.target = '_blank'; open.rel = 'noopener noreferrer'; open.setAttribute('aria-label', `Open ${pr.title} (opens in a new tab)`);
+    c.append(el('h3', '', pr.title), el('p', '', pr.summary), el('p', 'hint', pr.url), el('h4', '', 'Jump straight to'));
+    const chips = el('div', 'chips');
+    pr.pages.forEach(([label, path]) => { const a = el('a', '', label); a.href = pr.url + path; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.setAttribute('aria-label', `${label} on ${pr.title} (opens in a new tab)`); chips.append(a); });
+    c.append(chips, open); $('#proj-list').append(c);
+  });
+  function focusProject(id) {
+    const c = $('#proj-' + id); if (!c) return false;
+    document.querySelectorAll('.proj').forEach(x => x.classList.remove('pick')); c.classList.add('pick');
+    setTimeout(() => c.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200); return true;
+  }
+
+  /* ---------- Control center ---------- */
+  D.commands.forEach(([g, list]) => {
+    const box = el('div'); box.append(el('h4', '', g)); const row = el('div', 'chips');
+    list.forEach(c => { const b = el('button', '', c); b.type = 'button'; b.addEventListener('click', () => window.Control && Control.ask(c)); row.append(b); });
+    box.append(row); $('#cmd-groups').append(box);
+  });
+  function renderControl() {
+    const log = store.get('chalk-stats', { log: [] }).log || [], ol = $('#activity'); ol.textContent = '';
+    if (!log.length) ol.append(el('li', 'hint', 'Nothing yet. Run a command above and it will appear here.'));
+    log.slice().reverse().forEach(x => ol.append(el('li', '', `${x.agent} agent: ${x.action}. ${x.ok ? 'Verified.' : 'Not completed.'}`)));
+    const ok = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+    $('#v-support').textContent = ok ? 'Voice input is available in this browser.' : 'Voice input is not available in this browser. Typing works everywhere. Try Chrome, Edge, or Safari for voice.';
+    $('#try-voice').disabled = !ok;
+  }
+  $('#open-chat').addEventListener('click', () => window.Control && Control.open());
+  $('#try-voice').addEventListener('click', () => window.Control && Control.listen());
+  $('#v-speak').addEventListener('change', e => window.Control && Control.setSpeak(e.target.checked));
+
+  /* ---------- Security: password lab, demo sign-in, saved-data list ---------- */
+  const pool = p => (/[a-z]/.test(p) ? 26 : 0) + (/[A-Z]/.test(p) ? 26 : 0) + (/\d/.test(p) ? 10 : 0) + (/[^A-Za-z0-9]/.test(p) ? 32 : 0);
+  const bits = p => p ? Math.round(p.length * Math.log2(pool(p) || 1)) : 0;
+  function crack(b) {
+    const s = Math.pow(2, b) / 1e11; if (s < 1) return 'less than a second';
+    for (const [n, name] of [[31557600, 'years'], [86400, 'days'], [3600, 'hours'], [60, 'minutes'], [1, 'seconds']]) if (s >= n) { const v = s / n; return v > 1e6 ? 'longer than a lifetime' : Math.round(v).toLocaleString() + ' ' + name; }
+  }
+  let pwTimer; const pw = $('#pw');
+  pw.addEventListener('input', () => {
+    const b = bits(pw.value), m = $('#meter');
+    m.style.width = Math.min(100, b / 0.8) + '%'; m.className = b < 40 ? 'weak' : b < 60 ? 'fair' : 'good';
+    $('#pw-out').textContent = pw.value ? `${b} bits of entropy. A fast attacker would need ${crack(b)}.${pw.value.length < 12 ? ' Use at least 12 characters.' : ''}` : 'Type to see entropy and how long a fast attacker would need.';
+    clearTimeout(pwTimer); if (pw.value.length >= 4) pwTimer = setTimeout(() => { const h = store.get('chalk-pw', []); h.push(b); store.set('chalk-pw', h.slice(-10)); renderStore(); }, 1200);
+  });
+  const canHash = !!(window.crypto && crypto.subtle), hex = buf => [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, '0')).join('');
+  const hash = async (pass, salt) => hex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + pass)));
+  const authOut = $('#auth-out');
+  $('#auth').addEventListener('click', async e => {
+    const act = e.target.dataset.act; if (!act) return;
+    if (!canHash) return say(authOut, 'Hashing needs a secure page (HTTPS or localhost).', false);
+    const u = clean($('#u').value, 24).toLowerCase(), p = $('#p').value;
+    if (!/^[a-z0-9_]{3,24}$/.test(u)) return say(authOut, 'Username must be 3 to 24 letters, numbers, or underscores.', false);
+    const users = store.get('chalk-users', {});
+    if (act === 'register') {
+      if (p.length < 12) return say(authOut, 'Passphrase needs at least 12 characters.', false);
+      if (users[u]) return say(authOut, 'That username is taken. Choose another.', false);
+      const salt = hex(crypto.getRandomValues(new Uint8Array(16))); users[u] = { salt, h: await hash(p, salt) }; store.set('chalk-users', users); renderStore();
+      return say(authOut, `Account created. You can log in as ${u}.`, true);
+    }
+    const lock = store.get('chalk-lock', 0); if (Date.now() < lock) return say(authOut, `Too many attempts. Try again in ${Math.ceil((lock - Date.now()) / 1000)} seconds.`, false);
+    const rec = users[u];
+    if (rec && (await hash(p, rec.salt)) === rec.h) { store.set('chalk-fails', 0); return say(authOut, `Welcome back, ${u}.`, true); }
+    const f = store.get('chalk-fails', 0) + 1; store.set('chalk-fails', f);
+    if (f >= 3) { store.set('chalk-lock', Date.now() + 30000); store.set('chalk-fails', 0); return say(authOut, 'Too many attempts. Locked for 30 seconds.', false); }
+    say(authOut, `Username or passphrase is wrong. ${3 - f} attempts left.`, false);
+  });
+  const INVENTORY = [['Theme', 'Remembers your background choice', 'chalk-look'], ['Cart', 'Keeps your cart between visits', 'chalk-cart'], ['Demo receipts', 'Shows your last demo orders', 'chalk-orders'],
+    ['Agent counts', 'Feeds the dashboard and activity list', 'chalk-stats'], ['Quiz scores', 'Feeds the dashboard', 'chalk-quiz'], ['Password strength numbers', 'Feeds the dashboard. Never the password itself', 'chalk-pw'], ['Practice accounts', 'Salted hashes for the demo sign-in', 'chalk-users']];
+  function renderStore() {
+    const tb = $('#store-rows'); tb.textContent = '';
+    INVENTORY.forEach(([n, why, key]) => {
+      let v = null; try { v = localStorage.getItem(key); } catch (e) {}
+      const has = v !== null && !['[]', '{}', 'null', '0'].includes(v), r = el('tr'), th = el('th', '', n); th.scope = 'row'; r.append(th, el('td', '', why), el('td', '', has ? 'Yes' : 'No')); tb.append(r);
+    });
+  }
+  const eraseBox = $('#erase-box'), eraseOut = $('#erase-out');
+  $('#erase-start').addEventListener('click', () => { eraseBox.hidden = false; $('#erase-yes').focus(); });
+  $('#erase-no').addEventListener('click', () => { eraseBox.hidden = true; say(eraseOut, 'Nothing was erased.', true); });
+  $('#erase-yes').addEventListener('click', () => { const r = window.Control ? Control.erase() : { ok: false }; eraseBox.hidden = true; say(eraseOut, r.ok ? 'Everything saved by this site was erased from this browser.' : 'Could not erase. Try again.', r.ok); renderStore(); });
+
+  /* ---------- Contact: validate, clean, then hand off to the email app ---------- */
+  $('#contact-form').addEventListener('submit', e => {
+    e.preventDefault(); const out = $('#c-out');
+    const n = clean($('#cn').value, 60), m = clean($('#cm').value, 1000), em = $('#ce').value.trim();
+    if (n.length < 2) return say(out, 'Enter your name (at least 2 characters).', false);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) return say(out, 'Enter a valid email address, like name@school.edu.', false);
+    if (m.length < 10) return say(out, 'Write a message of at least 10 characters.', false);
+    say(out, 'Your message is ready. ', true);
+    const a = el('a', 'btn', 'Open in my email app');
+    a.href = 'mailto:mchilds@caldwell.edu?subject=' + encodeURIComponent('Message from ' + n) + '&body=' + encodeURIComponent(m + '\n\nReply to: ' + em);
+    out.append(a);
+  });
+  D.requirements.forEach(([name, view, label, sayText, what]) => {
+    const r = el('tr'), th = el('th', '', name), td = el('td'), a = el('a', '', label); th.scope = 'row'; a.href = '#' + view; td.append(a);
+    r.append(th, td, el('td', '', '"' + sayText + '"'), el('td', '', what)); $('#req-rows').append(r);
+  });
+
+  function onShow(id) { if (id === 'dashboard') renderDash(); else if (id === 'control') renderControl(); else if (id === 'security') renderStore(); }
+  window.Pages = { onShow, focusChart, focusProject, renderStore, renderDash };
+  renderStore(); onShow((location.hash || '').slice(1));
+})();

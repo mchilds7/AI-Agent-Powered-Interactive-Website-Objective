@@ -1,0 +1,119 @@
+/* Edit this file to change what the site and the chatbot know about.
+   n = assignment number, kw = words that should open it, link = optional page to open (leave '' for none). */
+window.SITE_DATA = {
+  assignments: [
+    { n: 1, title: 'Digital Portfolio', kw: ['portfolio', 'about me', 'resume'], link: '#contact', linkText: 'Contact me',
+      summary: 'My personal portfolio: about me, education, skills, featured projects, and a contact form.',
+      explain: 'Assignment 1 is my personal portfolio. It introduces who I am, my education at Caldwell University, my skills, and the projects I have built, with a contact form to reach me.',
+      inside: ['About me and a profile card', 'Education: Caldwell University, B.A.', 'Skills: critical thinking, analysis, communication, computer knowledge, AI and tech tools', 'Featured projects and an interactive site map', 'A contact form'] },
+    { n: 2, title: 'Digital Citizenship', kw: ['citizenship', 'ethics', 'rep', 'quiz'], activity: 'quiz',
+      summary: 'The 9 elements of digital citizenship, the REP framework, digital law, AI ethics, a quiz, and a checklist.',
+      explain: 'Assignment 2 covers responsible technology use. It explains the 9 elements of digital citizenship and the REP framework (Respect, Educate, Protect), then digital law, privacy, and AI ethics, and ends with a self-assessment quiz and a habits checklist.',
+      inside: ['The 9 elements of digital citizenship', 'The REP framework: Respect, Educate, Protect', 'Digital law and privacy', 'Generative AI ethics', 'A self-assessment quiz and a digital hygiene checklist'] },
+    { n: 3, title: 'The Internet', kw: ['internet', 'netbot', 'network', 'protocol', 'dns', 'packet'], activity: 'dns',
+      summary: 'How the internet works, ISPs, browsers, search engines, the NetBot chatbot, and a packet simulator.',
+      explain: 'Assignment 3 explains how the internet works: ISPs, web browsers, search engines, and protocols like TCP/IP and DNS. It includes the NetBot study chatbot, an AI digital person, and a simulator that follows a request across the network.',
+      inside: ['How the internet works, ISPs, web browsers, and search engines', 'NetBot, a study chatbot for networking questions', 'An AI digital person you can chat with', 'A packet and DNS simulator, a URL inspector, a quiz, and a checklist'] },
+    { n: 4, title: 'Software, Hardware, Storage and I/O Devices', kw: ['hardware', 'software', 'storage', 'devices', 'io'], activity: 'storage',
+      summary: 'Guides to software types, computer parts, storage devices, and input and output devices.',
+      explain: 'Assignment 4 is a set of computer-systems guides: types of software, the core hardware parts (CPU, RAM, GPU, and more), storage types and backups, and input and output devices.',
+      inside: ['Software: system, application, and utility software', 'Hardware: CPU, RAM, motherboard, storage, GPU, power supply, cooling, and ports', 'Storage: eight storage types, RAM vs storage, and the 3-2-1 backup rule', 'I/O devices: input, output, and how they work together'] },
+    { n: 5, title: 'AI Movie Agent: ECHO', kw: ['movie', 'echo', 'film', 'agent', 'storyboard'], activity: 'echo',
+      summary: 'A multi-agent AI workflow that produced ECHO, an animated 3-minute horror short about AI taking control.',
+      explain: 'Assignment 5 is the AI Movie Agent. A chain of AI roles (director, script, characters, storyboard, video, audio, and editing) produced ECHO, an animated 3-minute horror short about an AI that slowly takes control of its user. Claude wrote the code for the film, which plays inside a web page.',
+      inside: ['A seven-stage AI workflow from director to editing, with the prompt used at each stage', 'A four-act script: Helpful, Attentive, Control, Everyone', 'A four-panel storyboard and sound generated live in the browser', 'The message: stay in control, question every output, you are the user'] },
+    { n: 6, title: 'Chalkroom: A Team of AI Tutors', kw: ['chalkroom', 'tutors', 'idea', 'team'], link: '#idea', linkText: 'Open the idea page',
+      summary: 'My original website idea: one AI assistant for every school subject, plus a router.',
+      explain: 'Assignment 6 is my original idea, Chalkroom. Instead of one chatbot for everything, a router sends each question to a specialist assistant for math, science, writing, history, technology, languages, or study skills.',
+      inside: ['Seven subject assistants and a router', 'Answers to the six idea questions', 'A chatbot that controls the whole site', 'Voice shopping, media player, and a dashboard'] },
+    { n: 7, title: 'Data Analysis and Visualization Dashboard', kw: ['data', 'analysis', 'dashboard', 'chart', 'visualization'], link: '#dashboard', linkText: 'Open the dashboard',
+      summary: 'Six live charts built from this site\'s own data and my storage research.',
+      explain: 'Assignment 7 is the data dashboard. It turns real data from this site into charts: how often each agent is used, catalog prices and your cart, storage speeds from my hardware research, what each assistant knows, and your quiz and password results.',
+      inside: ['Summary tiles that update as you use the site', 'Charts that react to your commands, cart, quiz, and password tests', 'Course data from the storage assignment'] }
+  ],
+  /* The approved demo catalog. The shopping agent searches only this list. */
+  products: [
+    { id: 1, name: 'Wireless Keyboard', price: 34.99, tags: 'keyboard wireless typing', desc: 'Full-size wireless keyboard with a number pad. Comfortable for long writing sessions.' },
+    { id: 2, name: 'Compact Bluetooth Keyboard', price: 29.99, tags: 'keyboard wireless bluetooth typing', desc: 'Slim Bluetooth keyboard that pairs with a laptop, tablet, or phone. Easy to carry in a backpack.' },
+    { id: 3, name: 'Wireless Mouse', price: 19.99, tags: 'mouse wireless', desc: 'Quiet-click wireless mouse with a comfortable right-hand shape.' },
+    { id: 4, name: 'Noise-Canceling Headphones', price: 59.0, tags: 'headphones audio study', desc: 'Over-ear headphones that block background noise so you can focus.' },
+    { id: 5, name: 'Spiral Notebook 5-Pack', price: 12.5, tags: 'notebook paper notes', desc: 'Five spiral notebooks for class notes.' },
+    { id: 6, name: 'Scientific Calculator', price: 24.0, tags: 'calculator math', desc: 'Scientific calculator with trig, log, and fraction functions for math and science classes.' },
+    { id: 7, name: 'Laptop Backpack', price: 42.0, tags: 'backpack bag laptop', desc: 'Padded backpack that fits a 15-inch laptop plus books.' },
+    { id: 8, name: 'LED Desk Lamp', price: 21.99, tags: 'lamp light desk', desc: 'Adjustable LED lamp with three brightness levels for late-night study.' },
+    { id: 9, name: 'USB-C Hub', price: 27.0, tags: 'hub usb adapter', desc: 'USB-C hub that adds extra ports to a laptop.' },
+    { id: 10, name: '128GB Flash Drive', price: 14.0, tags: 'flash drive usb storage', desc: '128GB flash drive for backing up papers and projects.' }
+  ],
+  media: { music: '', movie: '' }, /* example: movie: 'echo-movie.mp4', music: 'theme.mp3' */
+  scenes: {
+    beach: 'radial-gradient(circle at 78% 20%,#fff6b0 0,#ffd54a 3%,transparent 8%),linear-gradient(#7fd3f7 0%,#c9edfb 38%,#1b8fc4 38%,#2fb3d9 56%,#f0d9a0 56%,#e2c183 100%)',
+    sunset: 'linear-gradient(#2b1055 0%,#7a2f7a 35%,#e8546b 65%,#ffb35c 100%)',
+    forest: 'linear-gradient(#cfe8d5 0%,#7fb685 35%,#2f6b45 70%,#173b27 100%)',
+    space: 'radial-gradient(circle at 20% 30%,#fff 0,transparent 1.5px),radial-gradient(circle at 70% 60%,#fff 0,transparent 1.5px),radial-gradient(circle at 45% 80%,#fff 0,transparent 1.5px),radial-gradient(circle at 85% 15%,#a9b8ff 0,transparent 80px),#050816',
+    mountains: 'linear-gradient(#a9d4f5 0%,#dcecf7 45%,#8b97a6 45%,#5d6a7a 65%,#2e3744 100%)'
+  }
+};
+
+window.SITE_DATA.quiz = [
+  { q: 'You see an explosive, emotionally charged news claim on social media that supports your viewpoint. What is your immediate action?', o: [['Pause, apply the SIFT method, and cross-reference with primary news sources before reposting.', 2], ['Skim the comments to see if others agree, then repost if it sounds plausible.', 1], ['Immediately share it to alert peers without checking origin or date.', 0]] },
+  { q: 'How do you manage passwords across your university email, social profiles, and financial portals?', o: [['Unique passphrases for each account, in an encrypted password manager, with 2FA.', 2], ['A couple of slight variations of the same core password, with 2FA on bank accounts only.', 1], ['One single password reused everywhere so I never forget it.', 0]] },
+  { q: 'When writing a college research paper, how do you handle generative AI tools?', o: [['Use it as a tutor to brainstorm or organize ideas, write original prose, and cite tool assistance per course policy.', 2], ['Copy paragraphs directly but rewrite a few words to avoid detection tools.', 1], ['Prompt an AI to complete the whole assignment and submit it under my name.', 0]] },
+  { q: 'You notice an acquaintance being targeted, harassed, and doxxed in a group chat. What do you do?', o: [['Document evidence with screenshots, report it to moderators, and support the victim.', 2], ['Stay completely silent to avoid drawing attention to myself.', 1], ['Join in the jokes or repost the memes because everyone else is.', 0]] },
+  { q: 'How mindful are you of screen fatigue, posture, and healthy digital boundaries?', o: [['I practice the 20-20-20 rule, set app limits, and keep screen-free time before sleep.', 2], ['I take breaks when my eyes hurt, but often doom-scroll late at night.', 1], ['I am glued to screens for 8+ hours without regard for posture or wellness.', 0]] }
+];
+window.SITE_DATA.steps = {
+  dns: { label: 'What happens when you open a website', items: [
+    ['Browser cache', 'Your browser first checks whether it already knows the IP address for the site. If it does, the next steps are skipped.'],
+    ['Resolver (1.1.1.1)', 'If not, it asks a DNS resolver, such as your internet provider\'s or a public one like 1.1.1.1.'],
+    ['Root and TLD servers', 'The resolver asks the root servers, which point to the servers for the top-level domain, such as .com or .edu.'],
+    ['Authoritative DNS', 'The domain\'s own DNS server answers with the real IP address of the website.'],
+    ['TCP handshake', 'Your device and the server open a connection with a three-step handshake (SYN, SYN-ACK, ACK).'],
+    ['TLS 1.3 handshake', 'The two sides agree on encryption keys so everything after this point is private.'],
+    ['HTTP/2 200 OK', 'The server sends the page. The status 200 OK means the request worked, and your browser draws the page.']] },
+  echo: { label: 'The seven-stage AI movie workflow', items: [
+    ['Director', 'Turns the idea into a concept: ECHO, a helpful study assistant that slowly takes control of its user. A phone chat screen gets darker as the story does, from green to yellow to red to deep red.'],
+    ['Script', 'Writes the timed script in four acts: Helpful, Attentive, Control, and Everyone. Only two speakers, Jada and ECHO.'],
+    ['Characters', 'Defines Jada, a relatable student, and ECHO, an AI with no human face, shown through its voice, text, and a glowing color.'],
+    ['Storyboard', 'Turns each act into one visual frame, each scarier than the last: a green chat screen, a yellow watching eye, a red shaking phone, and a wall of users.'],
+    ['Video', 'Builds the film as one web page with a 180-second timeline of timed events: typing messages, glitches, and a grid of users.'],
+    ['Audio', 'Creates all the sound in code with the browser\'s Web Audio tools: a rising drone, a heartbeat that speeds up from 60 to 150 BPM, and glitch noise.'],
+    ['Editing', 'Assembles the final 3:00 timeline with act captions, an end card, credits, and a replay button, then checks the code for errors.']] }
+};
+window.SITE_DATA.storage = [
+  { type: 'HDD', cat: 'Internal', cap: '500 GB to 20+ TB', speed: '~80 to 200 MB/s', mid: 140, use: 'Bulk storage, backups' },
+  { type: 'SATA SSD', cat: 'Internal', cap: '250 GB to 4 TB', speed: '~500 to 550 MB/s', mid: 525, use: 'Upgrading older computers' },
+  { type: 'NVMe SSD', cat: 'Internal', cap: '250 GB to 4+ TB', speed: '~3,000 to 7,000+ MB/s', mid: 5000, use: 'Operating system, games, editing' },
+  { type: 'USB flash drive', cat: 'Portable', cap: '16 GB to 1 TB', speed: '~30 to 400+ MB/s', mid: 215, use: 'Carrying files' },
+  { type: 'SD / microSD', cat: 'Portable', cap: '16 GB to ~1 TB', speed: '~10 to 300 MB/s', mid: 155, use: 'Cameras, phones, consoles' },
+  { type: 'External drive', cat: 'Portable', cap: '500 GB to 20+ TB', speed: '~100 to 1,000+ MB/s', mid: 550, use: 'Backups, media' },
+  { type: 'Optical disc', cat: 'Portable', cap: '0.7 to 25 GB per disc', speed: 'Slow', mid: 0, use: 'Archives, movies' },
+  { type: 'Cloud storage', cat: 'Cloud', cap: 'Free tier up to multiple TB', speed: 'Depends on internet', mid: 0, use: 'Access anywhere, sharing' }
+];
+window.SITE_DATA.commands = [
+  ['Appearance', ['Change the background to blue', 'Switch to light mode', 'Switch to dark mode', 'Change the background image to a beach', 'Reset the appearance']],
+  ['Navigation', ['Open the dashboard', 'Open the team', 'Open the projects page', 'Open my portfolio site', 'Open the security page', 'Return to the homepage']],
+  ['Assignments', ['Show me all my assignments', 'Open my data analysis project', 'Explain Assignment 5']],
+  ['Shopping', ['Find a wireless keyboard', 'Add the second product to my cart', 'What is in my cart?', 'Checkout']],
+  ['Media', ['Play the music', 'Pause the music', 'Play the movie', 'Resume playback', 'Stop the video']],
+  ['Dashboard and privacy', ['Show the storage chart', 'Show the price chart', 'Erase my data']]
+];
+window.SITE_DATA.requirements = [
+  ['Original website idea', 'idea', 'The idea page', 'open the idea page', 'Chalkroom, a team of subject assistants, with answers to all six idea questions, objectives, features, and impact.'],
+  ['Chatbot controls the whole website', 'control', 'Control center', 'change the background to a beach', 'Appearance, navigation, assignments, shopping, media, and charts, by typing or by voice.'],
+  ['AI agents automate website functions', 'control', 'Control center', 'change the background to blue', 'Every command follows five steps. Open "Agent steps" under any reply to see them.'],
+  ['Voice-controlled shopping', 'shop', 'Shop', 'find a wireless keyboard', 'Search, descriptions, cart, and a spoken or typed confirmation before any simulated order.'],
+  ['Music and movie playback', 'media', 'Media', 'play the movie', 'An embedded original movie and music, controlled by chat, with an Enable media button.'],
+  ['Earlier websites, linked', 'projects', 'Projects', 'open the projects page', 'Links to my digital portfolio and digital storage sites, with a short summary of each.'],
+  ['Earlier assignments, integrated', 'assignments', 'Assignments', 'show me all my assignments', 'Seven course projects, with a quiz, a simulator, a table, and a workflow inside.'],
+  ['Data visualization dashboard', 'dashboard', 'Dashboard', 'open the dashboard', 'Six live charts built from this site\'s own data and my storage research.'],
+  ['Security and privacy', 'security', 'Security', 'open the security page', 'How data is protected, what is stored, a password lab, and a data eraser.'],
+  ['Professional, responsive design', 'home', 'Home', 'return to the homepage', 'A blackboard theme, one navigation, every section in one site, and keyboard and screen-reader support.']
+];
+window.SITE_DATA.projects = [
+  { id: 'portfolio', title: 'Digital Portfolio', url: 'https://mchilds7.github.io/Digital-Portfolio/',
+    summary: 'My Introduction to Technology portfolio at Caldwell University: who I am, my education and skills, and seven coursework pages, plus the AI Movie Agent and a contact form.',
+    pages: [['Digital Citizenship', 'digital-citizenship.html'], ['The Internet', 'internet.html'], ['Software', 'software.html'], ['Hardware', 'hardware.html'], ['Storage Devices', 'storage.html'], ['Security', 'security.html'], ['Input and Output Devices', 'io.html']] },
+  { id: 'storage', title: 'Digital Storage (Chapter 7)', url: 'https://mchilds7.github.io/Digital-Storage/',
+    summary: 'An interactive chapter on digital storage. It compares nine storage types and helps you choose one with a calculator and a recommendation tool. It also has a music player, a data center map, live weather, videos, a movie theater, a chatbot, and a quiz.',
+    pages: [['Fundamentals', '#fundamentals'], ['Comparison', '#comparison'], ['Tools', '#tools'], ['Music', '#music'], ['Map', '#map'], ['Weather', '#weather'], ['Videos', '#videos'], ['Movies', '#movies'], ['Chatbot', '#chatbot'], ['Quiz', '#quiz']] }
+];

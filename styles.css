@@ -68,8 +68,8 @@ a.tile:hover,a.tile:focus-visible{border-color:var(--chalk)}
 .m.me{align-self:flex-end;background:var(--chalk);color:var(--board);border-color:var(--chalk)}
 .m button{margin-top:.4rem;display:block}
 .m details{margin-top:.4rem;font-size:.85rem;color:var(--dim)}.m details summary{cursor:pointer}.m details ol{margin:.3rem 0 0;padding-left:1.2rem;white-space:normal}
-.tries{display:flex;flex-wrap:wrap;gap:.4rem;margin:.6rem 0}.tries button,.chips button{font:.95rem var(--body);background:transparent;color:var(--dim);border:1px dashed var(--rule);border-radius:16px;padding:.25rem .8rem;cursor:pointer}
-.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.4rem}.chips button{min-height:36px}.chips button:hover{color:var(--chalk);border-color:var(--chalk)}
+.tries{display:flex;flex-wrap:wrap;gap:.4rem;margin:.6rem 0}.tries button,.chips button,.chips a{font:.95rem var(--body);background:transparent;color:var(--dim);border:1px dashed var(--rule);border-radius:16px;padding:.25rem .8rem;cursor:pointer}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.4rem}.chips button,.chips a{min-height:36px}.chips button:hover,.chips a:hover{color:var(--chalk);border-color:var(--chalk)}.chips a{display:inline-flex;align-items:center;text-decoration:none}.proj .btn{margin-top:.6rem}
 #room form{display:flex;gap:.5rem}
 /* assignments */
 details.card{padding:.6rem 1.2rem}details.card summary{font:1.5rem var(--hand);cursor:pointer;padding:.3rem 0}
@@ -107,7 +107,7 @@ footer{max-width:1080px;margin:2rem auto 5rem;padding:1rem clamp(1rem,4vw,2rem);
 /* scenes */
 .scene .view{background:rgba(10,10,10,.76);color:#f4f3ee;border-radius:14px;padding:clamp(1.2rem,4vw,2.5rem);margin:1.5rem 0}
 .scene .view a,.scene .view .hint,.scene .view .lede,.scene .view .say{color:#e9e8e0}
-@media (max-width:900px){.top{flex-wrap:wrap}nav{width:100%;margin-left:0;font-size:1.15rem}}
+@media (max-width:1100px){.top{flex-wrap:wrap}nav{width:100%;margin-left:0;font-size:1.15rem}}
 @media (max-width:760px){.team,.shop{grid-template-columns:1fr}#picker{flex-direction:row;overflow-x:auto}#picker button{white-space:nowrap}#picker button small{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 @media (min-width:1100px){body.chat-open main,body.chat-open footer{margin:0 440px 0 auto;max-width:min(1080px,calc(100vw - 440px))}body.chat-open footer{margin-top:2rem}}
